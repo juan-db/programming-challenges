@@ -7,6 +7,7 @@ int main(string[] args)
 	{
 		writeln(args[index]);
 		writeln(textToHex(args[index]));
+		writeln(textToBinary(args[index]));
 	}
 	return 0;
 }

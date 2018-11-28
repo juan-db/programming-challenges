@@ -5,6 +5,7 @@ SOURCES = main.d to_base.d
 OBJECTS = $(SOURCES:.d=.o)
 
 DC = dmd
+DFLAGS = -unittest
 COMPILE.d = $(DC) $(DFLAGS) -c
 D_OUTPUT_OPTION = -of=$@
 
