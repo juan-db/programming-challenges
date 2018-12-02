@@ -1,15 +1,39 @@
 import std.stdio : writeln;
 import to_base;
 
+bool verbose = false;
+string[] strings;
+
+void parseArgs(string[] args)
+{
+	foreach (arg; args)
+	{
+		if (arg == "--")
+		{
+			return;
+		}
+		else if (arg == "-v")
+		{
+			verbose = true;
+		}
+		else
+		{
+			strings ~= arg;
+		}
+	}
+}
+
 int main(string[] args)
 {
-	if (args.length < 3) {
+	if (args.length < 3)
+	{
 		printUsage();
 		return 1;
 	}
 
 	string function(string) convertFun;
-	switch (args[1]) {
+	switch (args[1])
+	{
 		case "b":
 		case "bin":
 		case "binary":
@@ -28,13 +52,38 @@ int main(string[] args)
 			return 2;
 	}
 
-	for (int index = 2; index < args.length; ++index)
+	parseArgs(args[2..$]);
+
+	if (verbose)
 	{
-		writeln(convertFun(args[index]));
+		auto funAddress = cast(ulong)convertFun;
+		if (funAddress == cast(ulong)&textToBinary)
+		{
+			writeln("Printing strings in binary.");
+		}
+		else if (funAddress == cast(ulong)&textToHex)
+		{
+			writeln("Printing string in hexadecimal.");
+		}
+	}
+
+	for (int index = 0; index < strings.length; ++index)
+	{
+		if (verbose)
+		{
+			writeln("String: ", strings[index]);
+			writeln(convertFun(strings[index]));
+			writeln();
+		}
+		else
+		{
+			writeln(convertFun(strings[index]));
+		}
 	}
 	return 0;
 }
 
-void printUsage() {
+void printUsage()
+{
 	writeln("Usage: ./tobase hex|bin text [...]");
 }
