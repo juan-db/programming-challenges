@@ -1,0 +1,12 @@
+{
+	"description": "Snake in D with ncurses.",
+	"license": "MIT",
+	"authors": [
+		"Juan"
+	],
+	"copyright": "Copyright © 2018, Juan",
+	"name": "snake",
+	"dependencies": {
+		"nice-curses": "~>0.2.4"
+	}
+}

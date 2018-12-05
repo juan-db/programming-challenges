@@ -1,0 +1,8 @@
+{
+	"fileVersion": 1,
+	"versions": {
+		"dub": "1.12.1-beta.1",
+		"ncurses": "~master",
+		"nice-curses": "0.2.4"
+	}
+}
