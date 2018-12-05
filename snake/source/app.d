@@ -3,6 +3,8 @@ void main()
     import nice.curses;
 
     auto curses = new Curses(Curses.Config()); /* Using default configuration. */
+    auto window = curses.stdscr;
+    window.box(0, 0);
     int y = curses.lines / 2;
     int x = curses.cols / 2;
     string str = "Hello, world!";
