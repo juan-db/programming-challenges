@@ -1,0 +1,8 @@
+snake moves a little bit each round
+if the player pressed a direction key the snake will move in the direction pressed
+direction keys are w, a, s, d, up, left, down, right
+
+if snake eats a fruit, he grows one tile in length
+how this works is the snake will move as usual but the tail will not move forward
+
+the snake's tail moves a tile forward first, then the head

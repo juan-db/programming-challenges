@@ -1,5 +1,8 @@
 class Snake
 {
+	import nice.curses;
+	import std.container.dlist;
+
 	struct BodyPart
 	{
 		private immutable int x;
@@ -22,8 +25,6 @@ class Snake
 		}
 	}
 
-	import std.container.dlist;
-
 	private DList!BodyPart body;
 
 	this(int x, int y)
@@ -32,12 +33,17 @@ class Snake
 		body.insertFront(BodyPart(x, y));
 	}
 
-	import nice.curses;
-	void draw(Curses curses)
+	void render(Curses curses)
 	{
+		import game;
+		import map;
+
+		auto gameMap = game.getMap();
+		auto xOffset = gameMap.getX() + 1;
+		auto yOffset = gameMap.getY() + 1;
 		foreach (bodyPart; body)
 		{
-			curses.stdscr.move(bodyPart.getX, bodyPart.getY);
+			curses.stdscr.move(xOffset + bodyPart.getX, yOffset + bodyPart.getY);
 			curses.stdscr.addch(bodyPart == body.front() ? '@' : '*');
 		}
 	}

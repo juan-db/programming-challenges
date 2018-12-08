@@ -1,0 +1,15 @@
+User
+====
+get user input
+move snake in the direction the user pressed
+
+
+Death
+=====
+make snake die when eating his tail or hitting the edge of the map
+
+
+Fruits
+======
+add fruit spawning
+make the snake grow when eating a fruit
