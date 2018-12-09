@@ -1,0 +1,12 @@
+{
+	"description": "Todo application using ncurses.",
+	"dependencies": {
+		"ncurses": "~master"
+	},
+	"authors": [
+		"Juan"
+	],
+	"copyright": "Copyright © 2018, Juan",
+	"license": "MIT",
+	"name": "todo"
+}
