@@ -1,28 +1,18 @@
 class Map
 {
-	/* Offset */
-	private immutable int x;
-	private immutable int y;
+	import nice.curses;
+
+	/** Curses window for the map. */
+	private Window window;
+
 	/* Size */
 	private immutable int width;
 	private immutable int height;
 
-	this(int x, int y, int width, int height)
+	this(Curses curses, int width, int height)
 	{
-		this.x = x;
-		this.y = y;
 		this.width = width;
 		this.height = height;
-	}
-
-	public int getX()
-	{
-		return x;
-	}
-
-	public int getY()
-	{
-		return y;
 	}
 
 	public int getWidth()

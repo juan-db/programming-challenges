@@ -5,25 +5,23 @@ void main()
 {
 	import core.time;
 
-	auto curses = new Curses(Curses.Config());
 	auto lastUpdate = MonoTime.currTime;
 	auto timePerUpdate = dur!"msecs"(250);
-
 	while (true)
 	{
 		if (MonoTime.currTime - lastUpdate >= timePerUpdate)
 		{
 			lastUpdate = MonoTime.currTime;
-			update(curses);
+			update(game.getCurses());
 		}
 
-		render(curses);
+		readInput(game.getCurses());
+		render(game.getCurses());
 	}
 }
 
 private void update(Curses curses)
 {
-
 }
 
 private void render(Curses curses)
@@ -34,4 +32,8 @@ private void render(Curses curses)
 	game.getSnake().render(curses);
 	curses.stdscr.refresh();
 	curses.update();
+}
+
+private void readInput(Curses curses)
+{
 }

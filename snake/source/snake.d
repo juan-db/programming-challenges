@@ -39,11 +39,9 @@ class Snake
 		import map;
 
 		auto gameMap = game.getMap();
-		auto xOffset = gameMap.getX() + 1;
-		auto yOffset = gameMap.getY() + 1;
 		foreach (bodyPart; body)
 		{
-			curses.stdscr.move(xOffset + bodyPart.getX, yOffset + bodyPart.getY);
+			curses.stdscr.move(bodyPart.getY(), bodyPart.getX());
 			curses.stdscr.addch(bodyPart == body.front() ? '@' : '*');
 		}
 	}

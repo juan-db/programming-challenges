@@ -1,7 +1,7 @@
 .dub
 docs.json
 __dummy.html
-docs/
+#docs/
 snake.so
 snake.dylib
 snake.dll

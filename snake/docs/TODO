@@ -1,0 +1,14 @@
+ Core
+======
+- abstract away the curses object completely, having a hidden update call
+- use one window for map and one for hud
+- have only the windows publicly exposed and not the curses object
+- get rid of the nice.curses package and use the bare ncurses package
+
+
+ Game Logic
+============
+- move snake in the direction the user pressed
+- make snake die when eating his tail or hitting the edge of the map
+- add fruit spawning
+- make the snake grow when eating a fruit
