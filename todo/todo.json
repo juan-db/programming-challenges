@@ -1,0 +1,20 @@
+[
+	{
+		"note": "Hello, World!",
+		"children": [
+			{
+				"note": "What's happening?",
+				"children": [
+					{
+						"note": "I'm alright.",
+						"children": []
+					},
+					{
+						"note": "I think...",
+						"children": []
+					}
+				]
+			}
+		]
+	}
+]
