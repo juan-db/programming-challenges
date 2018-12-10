@@ -1,11 +1,37 @@
-import std.stdio;
+import std.stdio : writeln;
 import deimos.ncurses;
-import std.string;
-import std.conv : to;
+import std.file;
+import std.json;
+import std.string : indexOf;
 
-void main()
+int main(string[] args)
 {
-	/* Initialization */
+	if (args.length != 2)
+	{
+		writeln("Usage: ", args[0], " file");
+		return 1;
+	}
+
+	/* read todo file. */
+	auto filename = args[1];
+	if (!exists(filename))
+	{
+		writeln("File \"", filename, "\" does not exist.");
+		return 2;
+	}
+	if (!isFile(filename))
+	{
+		writeln(filename, " is not a file.");
+		return 3;
+	}
+	auto json = parseJSON(readText(filename));
+	TodoEntry[] entries;
+	foreach (entry; json.array)
+	{
+		entries ~= TodoEntry.fromJSON(entry);
+	}
+
+	/* ncurses initialization. */
 	initscr();
 	scope(exit) endwin();
 	cbreak();
@@ -16,14 +42,12 @@ void main()
 	set_escdelay(0);
 
 	/* Logic */
-	auto entry = new TodoEntry("Hello, World!");
-	entry.addChild(new TodoEntry("What's happening?"));
-
-	addstr(toStringz(entry.toJSON()));
 
 	for (int ch; indexOf("qQ\x1b", ch = getch()) == -1;) // loop till 'q', 'Q', or escape
 	{
+
 	}
+	return 0;
 }
 
 class TodoEntry
@@ -64,12 +88,17 @@ class TodoEntry
 		return children;
 	}
 
+
+	// =========================================================================
+	// === JSON ================================================================
+	// =========================================================================
+
 	unittest
 	{
 		auto expected = new TodoEntry("Hello, World!");
 		auto json = expected.toJSON();
-		auto actual = TodoEntry.parseJSON(json);
-		assert(actual == expected, "JSON conversion/parsing for TodoEntry with no children failed.");
+		auto actual = TodoEntry.fromJSON(json);
+		assert(actual == expected, "to/fromJSON for TodoEntry with no children failed.");
 	}
 
 	unittest
@@ -78,43 +107,60 @@ class TodoEntry
 		expected.addChild(new TodoEntry("What's happening?"));
 		expected.addChild(new TodoEntry("My day's fine..."));
 		auto json = expected.toJSON();
-		auto actual = TodoEntry.parseJSON(json);
-		assert(actual == expected, "JSON conversion/parsing for TodoEntry with several children failed.");
+		auto actual = TodoEntry.fromJSON(json);
+		assert(actual == expected, "to/fromJSON for TodoEntry with several children failed.");
 	}
 
-	public static TodoEntry parseJSON(string jsonString)
+	unittest
 	{
-		auto json = std.json.parseJSON(jsonString);
+		auto expected = new TodoEntry("Hello, World!");
+		expected.addChild(new TodoEntry("What's happening?"));
+		expected.getChild(0).addChild(new TodoEntry("My day's fine..."));
+		auto json = expected.toJSON();
+		auto actual = TodoEntry.fromJSON(json);
+		assert(actual == expected, "to/fromJSON for TodoEntry with several layers of children failed.");
+	}
+
+	public static TodoEntry fromJSON(JSONValue json)
+	{
 		auto output = new TodoEntry(json["note"].str);
 		foreach (child; json["children"].array)
 		{
-			output.addChild(new TodoEntry(child["note"].str));
+			output.addChild(TodoEntry.fromJSON(child));
 		}
 		return output;
 	}
 
-	public string toJSON()
+	public JSONValue toJSON()
 	{
 		auto json = JSONValue();
 		json["note"] = note;
 		JSONValue[] children;
 		foreach (child; this.children)
 		{
-			children ~= std.json.parseJSON(child.toJSON());
+			children ~= child.toJSON();
 		}
 		json["children"] = children;
-		return std.json.toJSON(json);
+		return json;
 	}
+
+
+	// =========================================================================
+	// === UTILITY =============================================================
+	// =========================================================================
 
 	override public string toString()
 	{
-		auto representation = appender!string(typeof(this).classinfo.name ~ "<note: " ~ note ~ "; children: [");
+		import std.format : format;
+		auto repr = appender!string(format("%s<note:%s;children:[",
+										   typeof(this).classinfo.name,
+										   note));
 		foreach (child; children)
 		{
-			representation.put(child.toString());
+			repr.put(child.toString());
 		}
-		representation.put("]>");
-		return representation.data;
+		repr.put("]>");
+		return repr.data;
 	}
 
 	override public bool opEquals(Object o)
