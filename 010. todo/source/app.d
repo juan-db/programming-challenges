@@ -71,7 +71,7 @@ int main(string[] args)
 
 private void drawEntries(TodoEntry[] entries)
 {
-	if (COLS == 0)
+	if (COLS <= 3)
 	{
 		return;
 	}
@@ -83,26 +83,15 @@ private void drawEntries(TodoEntry[] entries)
 			auto note = replicate(" ", indent) ~ entry.getNote();
 			if (note.length > COLS)
 			{
-				if (COLS <= 3)
-				{
-					attron(A_UNDERLINE);
-					addstr(toStringz([".", "..", "..."][COLS - 1]));
-					attroff(A_UNDERLINE);
-					addch('\n');
-				}
-				else
-				{
-					addstr(toStringz(note[0..(COLS - 3)]));
-					attron(A_UNDERLINE);
-					addstr(toStringz("..."));
-					attroff(A_UNDERLINE);
-					addch('\n');
-				}
+				addstr(toStringz(note[0..(COLS - 3)]));
+				attron(A_UNDERLINE);
+				addstr(toStringz("..."));
+				attroff(A_UNDERLINE);
+				addch('\n');
 			}
 			else
 			{
-				addstr(toStringz(note));
-				addch('\n');
+				addstr(toStringz(note ~ '\n'));
 			}
 			drawEntries(indent + 2, entry.getChildren());
 		}
