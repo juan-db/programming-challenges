@@ -54,6 +54,7 @@ int main(string[] args)
 				entries ~= newEntry;
 			}
 			erase();
+			move(0, 0);
 			drawEntries(entries);
 		}
 	}
@@ -109,11 +110,37 @@ private TodoEntry createEntry()
 	byte[256] buff;
 	getnstr(cast(char*)buff, 256);
 	auto str = fromStringz(cast(char*)buff);
-	auto output = new TodoEntry(cast(string)str);
+	auto output = new TodoEntry(cast(string)(str.idup));
 	noecho();
 	cbreak();
 	nodelay(stdscr, true);
 	return output;
+}
+
+/**
+Draws a single todo entry to the screen where the cursor currently is.
+
+Params:
+	entry = todo entry to draw on the screen.
+	highlight = whether or not this entry should be highlighted.
+*/
+private void drawEntry(TodoEntry entry, bool highlight)
+{
+	auto note = entry.getNote();
+	if (note.length > COLS)
+	{
+		note = note[0..COLS - 4] ~ " ...";
+	}
+	if (highlight)
+	{
+		attron(A_STANDOUT);
+		addstr(toStringz(note));
+		attroff(A_STANDOUT);
+	}
+	else
+	{
+		addstr(toStringz(note));
+	}
 }
 
 private void drawEntries(TodoEntry[] entries)
@@ -122,20 +149,9 @@ private void drawEntries(TodoEntry[] entries)
 	{
 		foreach (entry; entries)
 		{
-			auto note = replicate(" ", indent) ~ entry.getNote();
-			if (note.length > COLS)
-			{
-				addstr(toStringz(note[0..(COLS - 3)]));
-				attron(A_UNDERLINE);
-				addstr(toStringz("..."));
-				attroff(A_UNDERLINE);
-				addch('\n');
-			}
-			else
-			{
-				addstr(toStringz(note ~ '\n'));
-			}
-			drawEntries(indent + 2, entry.getChildren());
+			drawEntry(entry, false);
+			addch('\n');
+			drawEntries(0, entry.getChildren());
 		}
 	}
 
