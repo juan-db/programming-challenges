@@ -5,6 +5,7 @@ import std.json;
 import std.string : indexOf, toStringz, fromStringz;
 import std.array : replicate;
 import std.conv : to;
+import std.algorithm.comparison : min, max;
 
 // DUB packages
 import deimos.ncurses;
@@ -12,6 +13,8 @@ import deimos.ncurses;
 // Local
 import ncurses_help;
 import todo_entry;
+
+private int currentLine = 0;
 
 int main(string[] args)
 {
@@ -47,15 +50,9 @@ int main(string[] args)
 	curs_set(0);
 
 	void delegate()[int] actions = [
-		KEY_F(2): delegate void() {
-			entries ~= createEntry();
-			erase();
-			drawEntries(entries);
-		},
-		KEY_LEFT: () => moveHorizontal(-1),
-		KEY_RIGHT: () => moveHorizontal(1),
-		KEY_UP: () => moveVertical(-1),
-		KEY_DOWN: () => moveVertical(1)
+		KEY_F(2): () => cast(void)(entries ~= createEntry()),
+		KEY_UP: () => cast(void)(currentLine = max(currentLine - 1, 0)),
+		KEY_DOWN: () => cast(void)(currentLine = min(currentLine + 1, LINES - 1))
 	];
 	drawEntries(entries);
 	move(1, 0);
@@ -66,10 +63,22 @@ int main(string[] args)
 			if (ch in actions)
 			{
 				actions[ch]();
+				redrawScreen(entries);
 			}
 		}
 	}
 	return 0;
+}
+
+private void redrawScreen(TodoEntry[] entries, bool resetCursor = false)
+{
+	erase();
+	drawEntries(entries);
+	if (resetCursor)
+	{
+		currentLine = 0;
+	}
+	move(currentLine, 0);
 }
 
 private TodoEntry[] loadEntries(string filename)
@@ -160,7 +169,9 @@ private void drawEntries(TodoEntry[] entries)
 	{
 		foreach (entry; entries)
 		{
-			drawEntry(entry, false);
+			int x, y;
+			getyx(stdscr, y, x);
+			drawEntry(entry, y == currentLine);
 			addch('\n');
 			drawEntries(0, entry.getChildren());
 		}
