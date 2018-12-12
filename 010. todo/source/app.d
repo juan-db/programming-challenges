@@ -1,10 +1,16 @@
+// Standard library
 import std.stdio : writeln;
-import deimos.ncurses;
 import std.file;
 import std.json;
 import std.string : indexOf, toStringz, fromStringz;
 import std.array : replicate;
 import std.conv : to;
+
+// DUB packages
+import deimos.ncurses;
+
+// Local
+import ncurses_help;
 import todo_entry;
 
 int main(string[] args)
@@ -25,37 +31,42 @@ int main(string[] args)
 
 	/* ncurses initialization. */
 	initscr();
-	scope(exit) endwin();
-	if (COLS <= 6)
+	if (LINES <= 6 || COLS <= 16)
 	{
-		writeln("Terminal must be more than 6 columns wide.");
+		endwin();
+		writeln("Terminal dimensions must be at least 6 high and 16 wide.");
 		return 5;
 	}
-	if (LINES <= 6)
-	{
-		writeln("Terminal must be more than 6 lines long.");
-		return 6;
-	}
+	scope(exit) endwin();
 	cbreak();
 	noecho();
 	nonl();
 	keypad(stdscr, true);
 	nodelay(stdscr, true);
 	set_escdelay(0);
+	curs_set(0);
 
+	void delegate()[int] actions = [
+		KEY_F(2): delegate void() {
+			entries ~= createEntry();
+			erase();
+			drawEntries(entries);
+		},
+		KEY_LEFT: () => moveHorizontal(-1),
+		KEY_RIGHT: () => moveHorizontal(1),
+		KEY_UP: () => moveVertical(-1),
+		KEY_DOWN: () => moveVertical(1)
+	];
 	drawEntries(entries);
+	move(1, 0);
 	for (int ch; indexOf("qQ\x1b", ch = getch()) == -1;) // loop till 'q', 'Q', or escape
 	{
 		if (ch != ERR)
 		{
-			if (ch == KEY_F(2))
+			if (ch in actions)
 			{
-				auto newEntry = createEntry();
-				entries ~= newEntry;
+				actions[ch]();
 			}
-			erase();
-			move(0, 0);
-			drawEntries(entries);
 		}
 	}
 	return 0;
