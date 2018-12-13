@@ -52,7 +52,8 @@ int main(string[] args)
 	void delegate()[int] actions = [
 		KEY_F(2): () => cast(void)(entries ~= createEntry()),
 		KEY_UP: () => cast(void)(currentLine = max(currentLine - 1, 0)),
-		KEY_DOWN: () => cast(void)(currentLine = min(currentLine + 1, LINES - 1))
+		KEY_DOWN: () => cast(void)(currentLine = min(currentLine + 1, LINES - 1)),
+		'?': () => drawHelp()
 	];
 	drawEntries(entries);
 	move(1, 0);
@@ -135,6 +136,17 @@ private TodoEntry createEntry()
 	cbreak();
 	nodelay(stdscr, true);
 	return output;
+}
+
+private void drawHelp()
+{
+	alias z = toStringz;
+	erase();
+	addstr(z("Add an entry       F2\n"));
+	addstr(z("Change selection   up/down arrow\n"));
+	nodelay(stdscr, false);
+	getch();
+	nodelay(stdscr, true);
 }
 
 /**
