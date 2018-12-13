@@ -165,17 +165,23 @@ private void drawEntry(TodoEntry entry, bool highlight)
 
 private void drawEntries(TodoEntry[] entries)
 {
-	void drawEntries(int indent, TodoEntry[] entries)
+	void drawEntries(TodoEntry[] entries, int depth)
 	{
 		foreach (entry; entries)
 		{
+			if (depth > 0)
+			{
+				auto indent = replicate(" ", depth - 1);
+				addstr(toStringz(indent));
+				addch('-');
+			}
 			int x, y;
 			getyx(stdscr, y, x);
 			drawEntry(entry, y == currentLine);
 			addch('\n');
-			drawEntries(0, entry.getChildren());
+			drawEntries(entry.getChildren(), depth + 1);
 		}
 	}
 
-	drawEntries(0, entries);
+	drawEntries(entries, 0);
 }
