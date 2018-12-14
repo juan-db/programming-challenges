@@ -51,6 +51,7 @@ int main(string[] args)
 
 	void delegate()[int] actions = [
 		KEY_F(2): () => cast(void)(entries ~= createEntry()),
+		KEY_F(3): () => saveEntries(filename, entries),
 		KEY_UP: () => cast(void)(currentLine = max(currentLine - 1, 0)),
 		KEY_DOWN: () => cast(void)(currentLine = min(currentLine + 1, LINES - 1)),
 		'?': () => drawHelp()
@@ -143,6 +144,7 @@ private void drawHelp()
 	alias z = toStringz;
 	erase();
 	addstr(z("Add an entry       F2\n"));
+	addstr(z("Save to file       F3\n"));
 	addstr(z("Change selection   up/down arrow\n"));
 	nodelay(stdscr, false);
 	getch();
@@ -196,4 +198,15 @@ private void drawEntries(TodoEntry[] entries)
 	}
 
 	drawEntries(entries, 0);
+}
+
+private void saveEntries(string filename, TodoEntry[] entries)
+{
+	write(filename, "");
+	auto jsonValue = parseJSON("[]");
+	foreach (entry; entries)
+	{
+		jsonValue.array ~= entry.toJSON();
+	}
+	write(filename, toJSON(jsonValue));
 }
