@@ -119,13 +119,22 @@ private TodoEntry[] loadEntries(string filename)
 	return output;
 }
 
+/**
+Prompts the enter a note for a new entry and creates a new entry using that
+note.
+
+Returns:
+	A new TodoEntry with a note provided by the user.
+*/
 private TodoEntry createEntry()
 {
 	erase();
+
 	attron(A_UNDERLINE);
 	addstr(toStringz("Create a new entry:"));
 	attroff(A_UNDERLINE);
 	addch(' ');
+	
 	echo();
 	nocbreak();
 	nodelay(stdscr, false);
@@ -139,6 +148,9 @@ private TodoEntry createEntry()
 	return output;
 }
 
+/**
+Clears the screen and draws a hotkey reference describing what each key does.
+*/
 private void drawHelp()
 {
 	alias z = toStringz;
@@ -155,8 +167,8 @@ private void drawHelp()
 Draws a single todo entry to the screen where the cursor currently is.
 
 Params:
-	entry = todo entry to draw on the screen.
-	highlight = whether or not this entry should be highlighted.
+	entry = Todo entry to draw on the screen.
+	highlight = Whether or not this entry should be highlighted.
 */
 private void drawEntry(TodoEntry entry, bool highlight)
 {
@@ -177,6 +189,23 @@ private void drawEntry(TodoEntry entry, bool highlight)
 	}
 }
 
+/**
+Draws the notes of all given entries to the screen at the current cursor
+position.
+
+Children entries get prepended with whitespace relative to their depth and a
+distinguishing symbol, e.g. a dash (-).
+
+When drawn it looks something like this:
+Root entry.
+- Children entry at depth 1.
+ - Child entry at depth 2.
+ - Another child entry at depth 2.
+Second root entry.
+
+Params:
+	entries = Entries to draw to the screen.
+*/
 private void drawEntries(TodoEntry[] entries)
 {
 	void drawEntries(TodoEntry[] entries, int depth)
@@ -200,6 +229,13 @@ private void drawEntries(TodoEntry[] entries)
 	drawEntries(entries, 0);
 }
 
+/**
+Saves all the given entries into a file. The entries are saved in a JSON array.
+
+Params:
+	filename = Name of the in which to save the given entries.
+	entries = Entries to save into the specified file.
+*/
 private void saveEntries(string filename, TodoEntry[] entries)
 {
 	write(filename, "");
