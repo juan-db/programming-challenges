@@ -130,21 +130,28 @@ private TodoEntry createEntry()
 {
 	erase();
 
+	// Write prompt for user.
 	attron(A_UNDERLINE);
 	addstr(toStringz("Create a new entry:"));
 	attroff(A_UNDERLINE);
 	addch(' ');
-	
+
+	// Set up ncurses.
 	echo();
-	nocbreak();
 	nodelay(stdscr, false);
+	curs_set(1);
+
+	// Get the input from the user.
 	byte[256] buff;
 	getnstr(cast(char*)buff, 256);
-	auto str = fromStringz(cast(char*)buff);
-	auto output = new TodoEntry(cast(string)(str.idup));
+	auto str = cast(string)fromStringz(cast(char*)buff);
+	auto output = new TodoEntry(str.idup);
+
+	// Set ncurses back to its original state.
 	noecho();
-	cbreak();
 	nodelay(stdscr, true);
+	curs_set(0);
+
 	return output;
 }
 
