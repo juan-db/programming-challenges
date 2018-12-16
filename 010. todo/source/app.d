@@ -16,6 +16,11 @@ import todo_entry;
 
 private int currentLine = 0;
 
+/**
+Maps lines numbers to the entry that appears on that line.
+*/
+private TodoEntry[int] lineToEntryMap;
+
 int main(string[] args)
 {
 	if (args.length != 2)
@@ -52,6 +57,7 @@ int main(string[] args)
 	void delegate()[int] actions = [
 		KEY_F(2): () => cast(void)(entries ~= createEntry()),
 		KEY_F(3): () => saveEntries(filename, entries),
+		KEY_F(4): () => addChildEntry(lineToEntryMap[currentLine]),
 		KEY_UP: () => cast(void)(currentLine = max(currentLine - 1, 0)),
 		KEY_DOWN: () => cast(void)(currentLine = min(currentLine + 1, LINES - 1)),
 		'?': () => drawHelp()
@@ -155,6 +161,11 @@ private TodoEntry createEntry()
 	return output;
 }
 
+private void addChildEntry(TodoEntry entry)
+{
+	entry.addChild(createEntry());
+}
+
 /**
 Clears the screen and draws a hotkey reference describing what each key does.
 */
@@ -179,6 +190,10 @@ Params:
 */
 private void drawEntry(TodoEntry entry, bool highlight)
 {
+	//int y, x;
+	//getyx(y, x);
+	auto line = getCursorCoords(stdscr).y;
+	lineToEntryMap[line] = entry;
 	auto note = entry.getNote();
 	if (note.length > COLS)
 	{

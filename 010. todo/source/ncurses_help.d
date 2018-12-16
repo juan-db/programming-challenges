@@ -1,6 +1,7 @@
 // Standard library
 import std.algorithm.comparison : min, max;
 import std.math : abs;
+import std.typecons : Tuple, tuple;
 
 // DUB packages
 import deimos.ncurses;
@@ -38,4 +39,21 @@ public void moveVertical(int amount)
 	y += amount;
 	y = max(min(y, LINES - 1), 0);
 	move(y, x);
+}
+
+/**
+Gets cursor coordinates.
+
+Params:
+	window = Window whose cursor coordinates to return.
+
+Returns:
+	A set with the x and y properties mapped to the x and y coordinates
+	for cursor in the specified window.
+*/
+public auto getCursorCoords(WINDOW* window)
+{
+	int y, x;
+	getyx(window, y, x);
+	return tuple!(int, "x", int, "y")(x, y);
 }
