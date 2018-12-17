@@ -78,6 +78,41 @@ int main(string[] args)
 	return 0;
 }
 
+class TodoEntryContainer
+{
+	private static TodoEntryContainer instance;
+
+	public static TodoEntryContainer getInstance()
+	{
+		if (instance is null)
+		{
+			instance = new TodoEntryContainer();
+		}
+		return instance;
+	}
+
+	private TodoEntry[] entries;
+
+	/**
+	Reads the specified file's contents and parses it into an array of
+	TodoEntries. This array is set as the currently loaded entries.
+
+	Throws:
+		FileException if reading the file's contents fails for some reason.
+		JSONException if the file's contents doesn't match the expected format.
+	*/
+	public void loadEntries(string filename)
+	{
+		entries = [];
+		auto fileContents = readText(filename);
+		auto json = parseJSON(fileContents);
+		foreach (entry; json.array)
+		{
+			entries ~= TodoEntry.fromJSON(entry);
+		}
+	}
+}
+
 private void redrawScreen(TodoEntry[] entries, bool resetCursor = false)
 {
 	erase();
@@ -89,41 +124,6 @@ private void redrawScreen(TodoEntry[] entries, bool resetCursor = false)
 	move(currentLine, 0);
 }
 
-private TodoEntry[] loadEntries(string filename)
-{
-	TodoEntry[] output;
-
-	if (!exists(filename))
-	{
-		return output;
-	}
-
-	if (!isFile(filename))
-	{
-		writeln("\"", filename, "\" exists but is not a file.");
-		return null;
-	}
-
-	try
-	{
-		auto json = parseJSON(readText(filename));
-		foreach (entry; json.array)
-		{
-			output ~= TodoEntry.fromJSON(entry);
-		}
-	}
-	catch (FileException fe)
-	{
-		writeln(fe.msg);
-		return null;
-	}
-	catch (JSONException je)
-	{
-		writeln(je.msg);
-		return null;
-	}
-	return output;
-}
 
 /**
 Prompts the enter a note for a new entry and creates a new entry using that
