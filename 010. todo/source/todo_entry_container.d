@@ -31,7 +31,6 @@ public void loadEntries(string filename)
 	}
 }
 
-
 /**
 Saves all the currently loaded entries to a file.
 
