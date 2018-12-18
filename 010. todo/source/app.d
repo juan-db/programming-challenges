@@ -34,7 +34,7 @@ int main(string[] args)
 	auto filename = args[1];
 	try
 	{
-		TodoEntryContainer.getInstance().loadEntries(filename);
+		loadEntries(filename);
 	}
 	catch (FileException fe)
 	{
@@ -64,14 +64,14 @@ int main(string[] args)
 	curs_set(0);
 
 	void delegate()[int] actions = [
-		KEY_F(2): () => TodoEntryContainer.getInstance().addEntry(createEntry()),
-		KEY_F(3): () => TodoEntryContainer.getInstance().saveEntries(filename),
+		KEY_F(2): () => addEntry(createEntry()),
+		KEY_F(3): () => saveEntries(filename),
 		KEY_F(4): () => lineToEntryMap[currentLine].addChild(createEntry()),
 		KEY_UP: () => cast(void)(currentLine = max(currentLine - 1, 0)),
 		KEY_DOWN: () => cast(void)(currentLine = min(currentLine + 1, LINES - 1)),
 		'?': () => drawHelp()
 	];
-	drawEntries(TodoEntryContainer.getInstance().getEntries());
+	drawEntries(getEntries());
 	move(1, 0);
 	for (int ch; indexOf("qQ\x1b", ch = getch()) == -1;) // loop till 'q', 'Q', or escape
 	{
@@ -80,7 +80,7 @@ int main(string[] args)
 			if (ch in actions)
 			{
 				actions[ch]();
-				redrawScreen(TodoEntryContainer.getInstance().getEntries());
+				redrawScreen(getEntries());
 			}
 		}
 	}
