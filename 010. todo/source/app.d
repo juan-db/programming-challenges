@@ -13,6 +13,7 @@ import deimos.ncurses;
 // Local
 import ncurses_help;
 import todo_entry;
+import todo_entry_container;
 
 private int currentLine = 0;
 
@@ -31,21 +32,29 @@ int main(string[] args)
 
 	/* read todo file. */
 	auto filename = args[1];
-	TodoEntry[] entries = loadEntries(filename);
-	if (entries is null)
+	try
 	{
+		TodoEntryContainer.getInstance().loadEntries(filename);
+	}
+	catch (FileException fe)
+	{
+		writeln(fe.msg);
 		return 2;
+	}
+	catch (JSONException je)
+	{
+		writeln(je.msg);
+		return 3;
 	}
 
 	/* ncurses initialization. */
 	initscr();
+	scope(exit) endwin();
 	if (LINES <= 6 || COLS <= 16)
 	{
-		endwin();
 		writeln("Terminal dimensions must be at least 6 high and 16 wide.");
 		return 5;
 	}
-	scope(exit) endwin();
 	cbreak();
 	noecho();
 	nonl();
@@ -55,14 +64,14 @@ int main(string[] args)
 	curs_set(0);
 
 	void delegate()[int] actions = [
-		KEY_F(2): () => cast(void)(entries ~= createEntry()),
-		KEY_F(3): () => saveEntries(filename, entries),
-		KEY_F(4): () => addChildEntry(lineToEntryMap[currentLine]),
+		KEY_F(2): () => TodoEntryContainer.getInstance().addEntry(createEntry()),
+		KEY_F(3): () => TodoEntryContainer.getInstance().saveEntries(filename),
+		KEY_F(4): () => lineToEntryMap[currentLine].addChild(createEntry()),
 		KEY_UP: () => cast(void)(currentLine = max(currentLine - 1, 0)),
 		KEY_DOWN: () => cast(void)(currentLine = min(currentLine + 1, LINES - 1)),
 		'?': () => drawHelp()
 	];
-	drawEntries(entries);
+	drawEntries(TodoEntryContainer.getInstance().getEntries());
 	move(1, 0);
 	for (int ch; indexOf("qQ\x1b", ch = getch()) == -1;) // loop till 'q', 'Q', or escape
 	{
@@ -71,46 +80,11 @@ int main(string[] args)
 			if (ch in actions)
 			{
 				actions[ch]();
-				redrawScreen(entries);
+				redrawScreen(TodoEntryContainer.getInstance().getEntries());
 			}
 		}
 	}
 	return 0;
-}
-
-class TodoEntryContainer
-{
-	private static TodoEntryContainer instance;
-
-	public static TodoEntryContainer getInstance()
-	{
-		if (instance is null)
-		{
-			instance = new TodoEntryContainer();
-		}
-		return instance;
-	}
-
-	private TodoEntry[] entries;
-
-	/**
-	Reads the specified file's contents and parses it into an array of
-	TodoEntries. This array is set as the currently loaded entries.
-
-	Throws:
-		FileException if reading the file's contents fails for some reason.
-		JSONException if the file's contents doesn't match the expected format.
-	*/
-	public void loadEntries(string filename)
-	{
-		entries = [];
-		auto fileContents = readText(filename);
-		auto json = parseJSON(fileContents);
-		foreach (entry; json.array)
-		{
-			entries ~= TodoEntry.fromJSON(entry);
-		}
-	}
 }
 
 private void redrawScreen(TodoEntry[] entries, bool resetCursor = false)
@@ -123,7 +97,6 @@ private void redrawScreen(TodoEntry[] entries, bool resetCursor = false)
 	}
 	move(currentLine, 0);
 }
-
 
 /**
 Prompts the enter a note for a new entry and creates a new entry using that
@@ -159,11 +132,6 @@ private TodoEntry createEntry()
 	curs_set(0);
 
 	return output;
-}
-
-private void addChildEntry(TodoEntry entry)
-{
-	entry.addChild(createEntry());
 }
 
 /**
@@ -251,20 +219,3 @@ private void drawEntries(TodoEntry[] entries)
 	drawEntries(entries, 0);
 }
 
-/**
-Saves all the given entries into a file. The entries are saved in a JSON array.
-
-Params:
-	filename = Name of the in which to save the given entries.
-	entries = Entries to save into the specified file.
-*/
-private void saveEntries(string filename, TodoEntry[] entries)
-{
-	write(filename, "");
-	auto jsonValue = parseJSON("[]");
-	foreach (entry; entries)
-	{
-		jsonValue.array ~= entry.toJSON();
-	}
-	write(filename, toJSON(jsonValue));
-}
