@@ -121,10 +121,7 @@ private TodoEntry createEntry()
 	curs_set(1);
 
 	// Get the input from the user.
-	byte[256] buff;
-	getnstr(cast(char*)buff, 256);
-	auto str = cast(string)fromStringz(cast(char*)buff);
-	auto output = new TodoEntry(str.idup);
+	auto output = new TodoEntry(getNStr(256));
 
 	// Set ncurses back to its original state.
 	noecho();

@@ -57,3 +57,22 @@ public auto getCursorCoords(WINDOW* window)
 	getyx(window, y, x);
 	return tuple!(int, "x", int, "y")(x, y);
 }
+
+/**
+Reads a string up to the first newline or up to n characters from user input.
+
+Params:
+	n = Max length of the string.
+
+Returns:
+	A D-style string with a max length of n characters.
+*/
+public string getNStr(uint n)
+{
+	import std.string : fromStringz;
+	char[] buff;
+	buff.length = n;
+	getnstr(buff.ptr, n);
+	auto str = cast(string)fromStringz(buff.ptr);
+	return str.idup;
+}
