@@ -6,7 +6,23 @@ import std.typecons : Tuple, tuple;
 // DUB packages
 import deimos.ncurses;
 
-// TODO not tested that much, only basic functionality tested.
+// I have no idea how to test the function in this file other than manually. All
+// of them have been tested a little bit but I'm not sure about edge cases.
+
+/**
+Moves the cursor horizontally relative to its current location.
+
+A positive integer will move the cursor to the right while a negative integer
+will move the cursor to the left.
+
+The cursor will never move off the screen, i.e. the cursor's position is capped
+to the dimensions of the window ([0, 0] and [COLS, LINES]).
+
+Params:
+	amount = Amount of columns to move the cursor.
+	wrap = If set to true the cursor will move to the next/previous line if the
+		   cursor is moved past the end/start of the current line.
+*/
 public void moveHorizontal(int amount, bool wrap = false)
 {
 	int x, y;
@@ -30,8 +46,18 @@ public void moveHorizontal(int amount, bool wrap = false)
 	move(y, x);
 }
 
-// TODO not tested extensively at all. I don't really know how to test ncurses
-// related functions and it works for what I need currently.
+/**
+Moves the cursor vertically relative to its currently location.
+
+A positive integer will move the cursor down while a negative integer will move
+the cursor up.
+
+The cursor its capped to the dimensions of the window, i.e. min y is 0 and max y
+is LINES.
+
+Params:
+	amount = Amount of rows to move the cursor.
+*/
 public void moveVertical(int amount)
 {
 	int x, y;
