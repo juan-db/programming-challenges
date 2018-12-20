@@ -66,20 +66,18 @@ int main(string[] args)
 	curs_set(0);
 
 	Action[] actions = [
-		new Action(KEY_F(2), "F2", "New Entry", "Creates a new entry at the root.",
-				   function void() { addEntry(createEntry()); }),
-		new Action(KEY_F(3), "F3", "New Child Entry",
-				   "Creates a new child entry for the currently selected entry.",
-				   function void() { lineToEntryMap[currentLine].addChild(createEntry()); }),
+		new Action(KEY_F(2), "F2", "New Entry", "Creates a new entry at the root.", () { addEntry(createEntry()); }),
+		new Action(KEY_F(3), "F3", "New Child Entry", "Creates a new child entry for the selected entry.",
+				   () { lineToEntryMap[currentLine].addChild(createEntry()); }),
 		new Action(KEY_F(4), "F4", "Delete Entry", "Deletes the currently selected entry. (Not Implemented)",
-				   function void() { return; }),
+				   () { return; }),
 		new Action(KEY_F(5), "F5", "Save To File", "Saves all currently loaded entries to a file",
-				   function void() { saveEntries(filename); }),
+				   () { saveEntries(filename); }),
 		new Action(KEY_UP, "Up arrow", "Change Selection", "Move the cursor up one line.",
-				   function void() { currentLine = max(currentLine - 1, 0); }),
+				   () { currentLine = max(currentLine - 1, 0); }),
 		new Action(KEY_DOWN, "Down arrow", "Change Selection", "Move the cursor down one line.",
-				   function void() { currentLine = min(currentLine + 1, LINES - 1, lineToEntryMap.length - 1); }),
-		new Action('?', "?", "Help", "Show available actions.", function void() { drawHelp(); })
+				   () { currentLine = min(currentLine + 1, LINES - 1, lineToEntryMap.length - 1); }),
+		new Action('?', "?", "Help", "Show available actions.", () { drawHelp(); })
 	];
 	foreach (action; actions)
 	{
