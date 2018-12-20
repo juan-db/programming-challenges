@@ -32,6 +32,11 @@ public class Action
 	public this(int key, string keyName, string name, string description,
 				void function() handler)
 	{
+		assert(keyName !is null);
+		assert(name !is null);
+		assert(description !is null);
+		assert(handler !is null);
+
 		this.key = key;
 		this.keyName = keyName;
 		this.name = name;
@@ -62,6 +67,76 @@ public class Action
 	public void function() getHandler()
 	{
 		return handler;
+	}
+
+	/**
+	Compares this instance to the given other instance.
+
+	Params:
+		other = Other instance to compare this instance to.
+
+	Returns:
+		True if all properties of this instance is equal to the other instance
+		provided.
+
+	Bugs:
+		Doesn't compare handler functions - I don't know how to check equality
+		of functions.
+	*/
+	public override bool opEquals(Object other)
+	{
+		// Apparently once this method is reached the runtime has already
+		// checked that the type of `other` matches this type:
+		// https://dlang.org/spec/operatoroverloading.html#equals
+		auto o = cast(Action)other;
+		return this.getKey() == o.getKey()
+			   && getKeyName() == o.getKeyName()
+			   && getName() == o.getName()
+			   && getDescription() == o.getDescription();
+	}
+
+	///
+	unittest
+	{
+		auto a = new Action(0, "Something", "Something Else", "Last Thing", function void() {});
+		auto b = new Action(0, "Something", "Something Else", "Last Thing", function void() {});
+		auto c = new Action(1, "Not Something", "Random Text", "The Description", function void() { auto a = 0; });
+		assert(a == a);
+		assert(b == b);
+		assert(c == c);
+		assert(a == b);
+		assert(a != c);
+	}
+
+	// Exhaustive unit test.
+	unittest
+	{
+		// FIXME This is a really complex test, this should really be simplified somehow.
+		auto a = new Action(0, "Something", "Something Else", "Last Thing", function void() {});
+		auto b = new Action(0, "Something", "Something Else", "Last Thing", function void() {});
+		auto c = new Action(1, "Something", "Something Else", "Last Thing", function void() {});
+		auto d = new Action(0, "Nothing",   "Something Else", "Last Thing", function void() {});
+		auto e = new Action(0, "Something", "Nothing",        "Last Thing", function void() {});
+		auto f = new Action(0, "Something", "Something Else", "Nothing",    function void() {});
+		// FIXME can't compare handler functions yet.
+		//auto g = new Action(0, "Something", "Something Else", "Last Thing", function void() { auto a = 1; });
+		
+		assert(a == a);
+		assert(b == b);
+		assert(c == c);
+		assert(d == d);
+		assert(e == e);
+		assert(f == f);
+		// FIXME can't compare handler functions yet.
+		//assert(g == g);
+		
+		assert(a == b);
+		assert(a != c);
+		assert(a != d);
+		assert(a != e);
+		assert(a != f);
+		// FIXME can't compare handler functions yet.
+		//assert(a != g);
 	}
 }
 
