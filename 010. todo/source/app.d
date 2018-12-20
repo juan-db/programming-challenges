@@ -151,11 +151,16 @@ Clears the screen and draws a hotkey reference describing what each key does.
 */
 private void drawHelp()
 {
+	import std.format : format;
 	alias z = toStringz;
 	erase();
-	addstr(z("Add an entry       F2\n"));
-	addstr(z("Save to file       F3\n"));
-	addstr(z("Change selection   up/down arrow\n"));
+
+	// FIXME actions get printed in a random order, add some logical order.
+	foreach (action; getActions())
+	{
+		addstr(z(format("(%s) %s: %s\n", action.getKeyName(), action.getName(), action.getDescription())));
+	}
+
 	nodelay(stdscr, false);
 	getch();
 	nodelay(stdscr, true);
