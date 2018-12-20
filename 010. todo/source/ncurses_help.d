@@ -9,16 +9,6 @@ import deimos.ncurses;
 
 // Using incredibly simple cap and abs instead of complicated ones in math
 // module since all the complex stuff isn't needed I believe.
-///
-unittest
-{
-	assert(cap(0, 10, 5) == 5);
-	assert(cap(0, 10, -1) == 0);
-	assert(cap(0, 10, 15) == 10);
-	assert(cap(-100, 100, 0) == 0);
-	assert(cap(-100, 100, -200) == -100);
-	assert(cap(-100, 100, 200) == 100);
-}
 
 /**
 Caps the given number between min and max.
@@ -56,11 +46,12 @@ private int cap(int min, int max, int num)
 ///
 unittest
 {
-	assert(abs(0) == 0);
-	assert(abs(1) == 1);
-	assert(abs(-1) == 1);
-	assert(abs(10000) == 10000);
-	assert(abs(-10000) == 10000);
+	assert(cap(0, 10, 5) == 5);
+	assert(cap(0, 10, -1) == 0);
+	assert(cap(0, 10, 15) == 10);
+	assert(cap(-100, 100, 0) == 0);
+	assert(cap(-100, 100, -200) == -100);
+	assert(cap(-100, 100, 200) == 100);
 }
 
 /**
@@ -75,6 +66,16 @@ Returns:
 private int abs(int num)
 {
 	return (num < 0) ? (-num) : num;
+}
+
+///
+unittest
+{
+	assert(abs(0) == 0);
+	assert(abs(1) == 1);
+	assert(abs(-1) == 1);
+	assert(abs(10000) == 10000);
+	assert(abs(-10000) == 10000);
 }
 
 /**
