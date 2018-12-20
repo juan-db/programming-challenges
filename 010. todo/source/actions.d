@@ -1,3 +1,6 @@
+// Standard library imports
+import std.algorithm.mutation : remove;
+
 /**
 Represents an action that can be taken when a key is pressed by the user.
 
@@ -138,6 +141,11 @@ public class Action
 		// FIXME can't compare handler functions yet.
 		//assert(a != g);
 	}
+
+	public void opCall()
+	{
+		getHandler()();
+	}
 }
 
 ///
@@ -149,4 +157,38 @@ unittest
 	assert(act.getName() == "Nothing");
 	assert(act.getDescription() == "Doesn't do anything.");
 	assert(act.getHandler() !is null);
+}
+
+private Action[][int] actionRegistry;
+
+public void registerAction(Action action)
+{
+	if (action is null)
+	{
+		return;
+	}
+
+	actionRegistry[action.getKey()] ~= action;
+}
+
+public Action[] getActions()
+{
+	Action[] output;
+	foreach (acts; actionRegistry)
+	{
+		output ~= acts;
+	}
+	return output;
+}
+
+public Action[] getActions(int key)
+{
+	if (key in actionRegistry)
+	{
+		return actionRegistry[key];
+	}
+	else
+	{
+		return [];
+	}
 }

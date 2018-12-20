@@ -14,8 +14,10 @@ import deimos.ncurses;
 import ncurses_help;
 import todo_entry;
 import todo_entry_container;
+import actions;
 
 private int currentLine = 0;
+private string filename;
 
 /**
 Maps lines numbers to the entry that appears on that line.
@@ -31,7 +33,7 @@ int main(string[] args)
 	}
 
 	/* read todo file. */
-	auto filename = args[1];
+	filename = args[1];
 	try
 	{
 		loadEntries(filename);
@@ -63,25 +65,38 @@ int main(string[] args)
 	set_escdelay(0);
 	curs_set(0);
 
-	void delegate()[int] actions = [
-		KEY_F(2): () => addEntry(createEntry()),
-		KEY_F(3): () => saveEntries(filename),
-		KEY_F(4): () => lineToEntryMap[currentLine].addChild(createEntry()),
-		KEY_UP: () => cast(void)(currentLine = max(currentLine - 1, 0)),
-		KEY_DOWN: () => cast(void)(currentLine = min(currentLine + 1, LINES - 1)),
-		'?': () => drawHelp()
+	Action[] actions = [
+		new Action(KEY_F(2), "F2", "New Entry", "Creates a new entry at the root.",
+				   function void() { addEntry(createEntry()); }),
+		new Action(KEY_F(3), "F3", "New Child Entry",
+				   "Creates a new child entry for the currently selected entry.",
+				   function void() { lineToEntryMap[currentLine].addChild(createEntry()); }),
+		new Action(KEY_F(4), "F4", "Delete Entry", "Deletes the currently selected entry. (Not Implemented)",
+				   function void() { return; }),
+		new Action(KEY_F(5), "F5", "Save To File", "Saves all currently loaded entries to a file",
+				   function void() { saveEntries(filename); }),
+		new Action(KEY_UP, "Up arrow", "Change Selection", "Move the cursor up one line.",
+				   function void() { currentLine = max(currentLine - 1, 0); }),
+		new Action(KEY_DOWN, "Down arrow", "Change Selection", "Move the cursor down one line.",
+				   function void() { currentLine = min(currentLine + 1, LINES - 1, lineToEntryMap.length - 1); }),
+		new Action('?', "?", "Help", "Show available actions.", function void() { drawHelp(); })
 	];
+	foreach (action; actions)
+	{
+		registerAction(action);
+	}
+
 	drawEntries(getEntries());
 	move(1, 0);
 	for (int ch; indexOf("qQ\x1b", ch = getch()) == -1;) // loop till 'q', 'Q', or escape
 	{
 		if (ch != ERR)
 		{
-			if (ch in actions)
+			foreach (action; getActions(ch))
 			{
-				actions[ch]();
-				redrawScreen(getEntries());
+				action();
 			}
+			redrawScreen(getEntries());
 		}
 	}
 	return 0;
