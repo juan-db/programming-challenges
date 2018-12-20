@@ -1,13 +1,81 @@
 // Standard library
-import std.algorithm.comparison : min, max;
-import std.math : abs;
-import std.typecons : Tuple, tuple;
+import std.typecons : tuple;
 
 // DUB packages
 import deimos.ncurses;
 
 // I have no idea how to test the function in this file other than manually. All
 // of them have been tested a little bit but I'm not sure about edge cases.
+
+// Using incredibly simple cap and abs instead of complicated ones in math
+// module since all the complex stuff isn't needed I believe.
+///
+unittest
+{
+	assert(cap(0, 10, 5) == 5);
+	assert(cap(0, 10, -1) == 0);
+	assert(cap(0, 10, 15) == 10);
+	assert(cap(-100, 100, 0) == 0);
+	assert(cap(-100, 100, -200) == -100);
+	assert(cap(-100, 100, 200) == 100);
+}
+
+/**
+Caps the given number between min and max.
+
+Bugs:
+	Doesn't enforce a min greater than max or max less than min. This is
+	intentional as it's not necessary and the entire purpose of this function
+	is to be the bare minimum.
+
+Params:
+	min = The minimum value num can be.
+	max = The maximum value num can be.
+	num = The actual number to check.
+
+Returns:
+	`min` if `num` is less than `min`. `max` is `num` is greater than `max`.
+	Otherwise, returns `num`.
+*/
+private int cap(int min, int max, int num)
+{
+	if (num < min)
+	{
+		return min;
+	}
+	else if (num > max)
+	{
+		return max;
+	}
+	else
+	{
+		return num;
+	}
+}
+
+///
+unittest
+{
+	assert(abs(0) == 0);
+	assert(abs(1) == 1);
+	assert(abs(-1) == 1);
+	assert(abs(10000) == 10000);
+	assert(abs(-10000) == 10000);
+}
+
+/**
+Returns the absolute value of `num`.
+
+Params:
+	num = Number whose absolute value to calculate.
+
+Returns:
+	The absolute value of `num`.
+*/
+private int abs(int num)
+{
+	return (num < 0) ? (-num) : num;
+}
 
 /**
 Moves the cursor horizontally relative to its current location.
@@ -22,6 +90,10 @@ Params:
 	amount = Amount of columns to move the cursor.
 	wrap = If set to true the cursor will move to the next/previous line if the
 		   cursor is moved past the end/start of the current line.
+
+Bugs:
+	If wrapping is enabled and the cursor travels past the top or bottom of the
+	screen, wrapping behaves in an unintuitive manner.
 */
 public void moveHorizontal(int amount, bool wrap = false)
 {
@@ -41,8 +113,8 @@ public void moveHorizontal(int amount, bool wrap = false)
 			x = x % COLS;
 		}
 	}
-	x = max(min(x, COLS - 1), 0);
-	y = max(min(y, LINES - 1), 0);
+	x = cap(0, COLS - 1, x);
+	y = cap(0, LINES - 1, y);
 	move(y, x);
 }
 
@@ -63,7 +135,7 @@ public void moveVertical(int amount)
 	int x, y;
 	getyx(stdscr, y, x);
 	y += amount;
-	y = max(min(y, LINES - 1), 0);
+	y = cap(0, LINES - 1, y);
 	move(y, x);
 }
 
