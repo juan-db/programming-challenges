@@ -1,20 +1,6 @@
-[
-	{
-		"note": "Hello, World!",
-		"children": [
-			{
-				"note": "What's happening?",
-				"children": [
-					{
-						"note": "I'm alright.",
-						"children": []
-					},
-					{
-						"note": "How about you?",
-						"children": []
-					}
-				]
-			}
-		]
-	}
-]
+[{"children":[
+	{"children":[
+		{"children":[],"done":true,"note":"I'm alright."},
+		{"children":[],"done":true,"note":"How about you?"}
+	],"done":true,"note":"What's happening?"}
+],"done":false,"note":"Hello, World!"}]

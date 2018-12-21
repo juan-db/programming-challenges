@@ -4,11 +4,13 @@ class TodoEntry
 	import std.json;
 
 	private string note;
+	private bool done;
 	private TodoEntry[] children;
 
 	this(string note)
 	{
 		this.note = note;
+		this.done = false;
 	}
 
 	public void setNote(string note)
@@ -16,9 +18,19 @@ class TodoEntry
 		this.note = note;
 	}
 
+	public void setDone(bool done)
+	{
+		this.done = done;
+	}
+
 	public string getNote()
 	{
 		return note;
+	}
+
+	public bool isDone()
+	{
+		return done;
 	}
 
 	public void addChild(TodoEntry child)
@@ -72,6 +84,7 @@ class TodoEntry
 	public static TodoEntry fromJSON(JSONValue json)
 	{
 		auto output = new TodoEntry(json["note"].str);
+		output.setDone(json["done"].boolean);
 		foreach (child; json["children"].array)
 		{
 			output.addChild(TodoEntry.fromJSON(child));
@@ -83,6 +96,7 @@ class TodoEntry
 	{
 		auto json = JSONValue();
 		json["note"] = note;
+		json["done"] = done;
 		JSONValue[] children;
 		foreach (child; this.children)
 		{
@@ -100,9 +114,9 @@ class TodoEntry
 	override public string toString()
 	{
 		import std.format : format;
-		auto repr = appender!string(format("%s<note:%s;children:[",
+		auto repr = appender!string(format("%s<note:%s;done:%s;children:[",
 										   typeof(this).classinfo.name,
-										   note));
+										   note, done));
 		foreach (child; children)
 		{
 			repr.put(child.toString());
