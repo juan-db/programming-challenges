@@ -59,7 +59,7 @@ int main(string[] args)
 	}
 	cbreak();
 	noecho();
-	nonl();
+	//nonl();
 	keypad(stdscr, true);
 	nodelay(stdscr, true);
 	set_escdelay(0);
@@ -77,6 +77,11 @@ int main(string[] args)
 				   () { currentLine = max(currentLine - 1, 0); }),
 		new Action(KEY_DOWN, "Down arrow", "Change Selection", "Move the cursor down one line.",
 				   () { currentLine = min(currentLine + 1, LINES - 1, lineToEntryMap.length - 1); }),
+		new Action('\n', "Enter", "Mark Done", "Change the current entry's done status.",
+			() {
+				auto entry = lineToEntryMap[currentLine];
+				entry.setDone(!entry.isDone());
+			}),
 		new Action('?', "?", "Help", "Show available actions.", () { drawHelp(); })
 	];
 	foreach (action; actions)
