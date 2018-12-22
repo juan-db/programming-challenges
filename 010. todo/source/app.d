@@ -178,6 +178,7 @@ private void drawEntry(TodoEntry entry, bool highlight)
 	auto line = getCursorCoords(stdscr).y;
 	lineToEntryMap[line] = entry;
 	auto note = entry.getNote();
+	note = (entry.isDone() ? "[x] " : "[ ] ") ~ note;
 	if (note.length > COLS)
 	{
 		note = note[0..COLS - 4] ~ " ...";
