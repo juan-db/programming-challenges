@@ -8,7 +8,7 @@
 - ~~Add a new root entry from in-app.~~
 - ~~Add a new child entry from in-app.~~
 - Delete an entry from in-app.
-- Mark an entry as done.
+- ~~Mark an entry as done.~~
 
 ## Extra
 
