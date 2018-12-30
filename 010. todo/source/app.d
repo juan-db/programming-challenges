@@ -52,11 +52,6 @@ int main(string[] args)
 	/* ncurses initialization. */
 	initscr();
 	scope(exit) endwin();
-	if (LINES <= 6 || COLS <= 16)
-	{
-		writeln("Terminal dimensions must be at least 6 high and 16 wide.");
-		return 5;
-	}
 	cbreak();
 	noecho();
 	//nonl();
