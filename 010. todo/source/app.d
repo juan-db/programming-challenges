@@ -86,31 +86,37 @@ private void registerActions()
 				   "New Entry",
 				   "Creates a new entry at the root.",
 				   () { addEntry(createEntry()); }),
+
 		new Action(KEY_F(3),
 				   "F3",
 				   "New Child Entry",
 				   "Creates a new child entry for the selected entry.",
 				   () { lineToEntryMap[currentLine].addChild(createEntry()); }),
+
 		new Action(KEY_F(4),
 				   "F4",
 				   "Delete Entry",
 				   "Deletes the currently selected entry. (Not Implemented)",
 				   () { return; }),
+
 		new Action(KEY_F(5),
 				   "F5",
 				   "Save To File",
 				   "Saves all currently loaded entries to a file",
 				   () { saveEntries(filename); }),
+
 		new Action(KEY_UP,
 				   "Up arrow",
 				   "Change Selection",
 				   "Move the cursor up one line.",
 				   () { currentLine = max(currentLine - 1, 0); }),
+
 		new Action(KEY_DOWN,
 				   "Down arrow",
 				   "Change Selection",
 				   "Move the cursor down one line.",
 				   () { currentLine = min(currentLine + 1, LINES - 1, lineToEntryMap.length - 1); }),
+
 		new Action('\n',
 				   "Enter",
 				   "Mark Done",
@@ -119,8 +125,14 @@ private void registerActions()
 				   	auto entry = lineToEntryMap[currentLine];
 				   	entry.setDone(!entry.isDone());
 				   }),
-		new Action('?', "?", "Help", "Show available actions.", () { drawHelp(); })
+
+		new Action('?',
+				   "?",
+				   "Help",
+				   "Show available actions.",
+				   () { drawHelp(); })
 	];
+
 	foreach (action; actions)
 	{
 		registerAction(action);
